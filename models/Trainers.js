@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const bcrypt = require("bcryptjs");
-const constants = require("../common/constants");
 const ObjectId = mongoose.Types.ObjectId;
 
 const DocSchema = new Schema(
@@ -9,6 +8,10 @@ const DocSchema = new Schema(
     userName: {
       type: String,
       default: "",
+    },
+    userType: {
+      type: String,
+      default: "trainer",
     },
     email: {
       type: String,
@@ -22,6 +25,10 @@ const DocSchema = new Schema(
     dialCode: {
       type: String,
       default: "",
+    },
+    isApproved: {
+      type: Boolean,
+      default: false,
     },
     password: {
       type: String,
