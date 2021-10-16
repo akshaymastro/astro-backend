@@ -37,6 +37,7 @@ const registration = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
+    console.log(req.body, "bodyyy");
     const { userType, password, email } = req.body;
     let Model =
       userType === "user"
@@ -45,6 +46,9 @@ const login = async (req, res, next) => {
         ? TrainerModel
         : AstrologerModel;
     const user = await Model.findOne({ email });
+    if (!user) {
+      throw Error("User doesn't Exist");
+    }
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
       throw Error("Incorrect Password");
