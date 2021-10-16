@@ -3,6 +3,7 @@ const AstrologerModel = require("../models/Astrologers");
 const TrainerModel = require("../models/Trainers");
 const jwtHelper = require("../helpers/jwt");
 const responseHandler = require("../helpers/response");
+const bcrypt = require("bcryptjs");
 
 const registration = async (req, res, next) => {
   try {
