@@ -4,7 +4,6 @@ const { JWT_SECRET, JWT_EXPIRE_TIME } = process.env;
 
 const createNewToken = (user) => {
   try {
-    // console.log(user, "userrr");
     const token = JWT.sign(
       {
         user,
@@ -12,7 +11,6 @@ const createNewToken = (user) => {
       },
       JWT_SECRET
     );
-    console.log(token, "tokennn");
     return token;
   } catch (err) {
     return err;
