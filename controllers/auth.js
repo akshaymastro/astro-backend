@@ -1410,10 +1410,11 @@ module.exports.getProfile = async (req, res, next) => {
     let doc = await Model.Trainers.findOne({
       _id: req.Trainer._id
     }).lean().exec();
-    let doc = await Model.Astrologers.findOne({
+    let astro = await Model.Astrologers.findOne({
       _id: req.astrologer._id
     }).lean().exec();
-    let doc = await Model.Users.findOne({
+    let usedety
+     = await Model.Users.findOne({
       _id: req.user._id
     }).lean().exec();
     return responseHandler.data(
