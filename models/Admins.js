@@ -14,15 +14,15 @@ const DocSchema = new Schema(
       default: "",
       index: true,
     },
-    userType: {
-      type: String,
-      default: "admin",
-    },
     image: {
       type: String,
       default: "",
     },
     isProfileSetup: {
+      type: Boolean,
+      default: false,
+    },
+    isNotification: {
       type: Boolean,
       default: false,
     },
