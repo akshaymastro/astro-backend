@@ -6,7 +6,7 @@ const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const DocSchema = new Schema(
     {
-        userId : {type : ObjectId, ref : 'user'},
+        userId : {type : ObjectId, ref : 'Customers'},
         path: { type: String, default: ""},
         status : {type: Number, enum: [constants.POST_TYPE.PENDING, constants.POST_TYPE.COMPLETE], default : constants.POST_TYPE.PENDING}
     },
