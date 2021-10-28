@@ -1418,8 +1418,7 @@ module.exports.getProfile = async (req, res, next) => {
     }).lean().exec();
     return responseHandler.data(
       res, {
-        message: "DATA_FETCHED",
-        doc
+        message: "DATA_FETCHED"
       },
       200
     );
