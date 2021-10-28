@@ -14,6 +14,11 @@ const DocSchema = new Schema(
       default: "",
       index: true,
     },
+    confirmPassword: {
+      type: String,
+      default: "",
+      index: true,
+    },
     userType: {
       type: String,
       default: "admin",

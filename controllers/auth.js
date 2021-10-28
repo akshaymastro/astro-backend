@@ -3,6 +3,7 @@ const responseHandler = require("../helpers/response");
 const Model = require("../models");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
+const Validation = require("../validation");
 
 const _sendEmailVerification = async (doc, email) => {
   try {
@@ -470,6 +471,7 @@ const _sendPhoneVerification = async (doc, dialCode, phoneNo) => {
 
 const registration = async (req, res, next) => {
   try {
+    await Validation.auth.registration.validateAsync(req.body);
     let userToken = "";
     if (req.body.userType == "user") {
       if (req.body.email) {
@@ -665,6 +667,7 @@ const registration = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
+    await Validation.auth.login.validateAsync(req.body);
     let userToken = "";
     const criteria = [];
     if (req.body.userType == "user") {
@@ -942,6 +945,7 @@ const logout = async (req, res, next) => {
 
 const sendOtp = async (req, res, next) => {
   try {
+    await Validation.auth.sendOtp.validateAsync(req.body);
     let doc = null;
 if(req.body.userType == "user"){
   if (req.body.email) {
@@ -1064,6 +1068,7 @@ return responseHandler.data(
 
 const verifyOtp = async (req, res, next) => {
   try {
+    await Validation.auth.verifyOtp.validateAsync(req.body);
     let doc = null;
     if (req.body.userType == "user"){
       if (req.body.email) {
@@ -1290,6 +1295,8 @@ const verifyOtp = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
   try {
+    await Validation.auth.changePassword.validateAsync(req.body);
+
   if(req.body.userType == "admin"){
     if (req.body.oldPassword === req.body.newPassword){
       return responseHandler.failure(
