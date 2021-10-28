@@ -14,6 +14,10 @@ const DocSchema = new Schema(
       default: "",
       index: true,
     },
+    userType: {
+      type: String,
+      default: "admin",
+    },
     image: {
       type: String,
       default: "",

@@ -12,7 +12,7 @@ const createNewToken = (user) => {
       },
       JWT_SECRET
     );
-    console.log(token, "tokennn");
+    // console.log(token, "tokennn");
     return token;
   } catch (err) {
     return err;
