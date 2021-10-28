@@ -9,6 +9,5 @@ router.post("/verifyOtp", AuthController.verifyOtp);
 router.post("/forgotPassword", AuthController.sendOtp);
 
 
-
 module.exports = router;
   
