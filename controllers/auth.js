@@ -895,7 +895,7 @@ const login = async (req, res, next) => {
   }
 };
 
-module.exports.logout = async (req, res, next) => {
+const logout = async (req, res, next) => {
   try {
     if (req.body.userType === "trainer") {
       await Model.Trainers.updateOne({
@@ -940,7 +940,7 @@ module.exports.logout = async (req, res, next) => {
   }
 };
 
-module.exports.sendOtp = async (req, res, next) => {
+const sendOtp = async (req, res, next) => {
   try {
     let doc = null;
 if(req.body.userType == "user"){
@@ -1062,7 +1062,7 @@ return responseHandler.data(
   }
 };
 
-module.exports.verifyOtp = async (req, res, next) => {
+const verifyOtp = async (req, res, next) => {
   try {
     let doc = null;
     if (req.body.userType == "user"){
@@ -1288,7 +1288,7 @@ module.exports.verifyOtp = async (req, res, next) => {
   }
 };
 
-module.exports.changePassword = async (req, res, next) => {
+const changePassword = async (req, res, next) => {
   try {
   if(req.body.userType == "admin"){
     if (req.body.oldPassword === req.body.newPassword){
@@ -1405,7 +1405,7 @@ module.exports.changePassword = async (req, res, next) => {
   }
 };
 
-module.exports.getProfile = async (req, res, next) => {
+const getProfile = async (req, res, next) => {
   try {
     let doc = await Model.Trainers.findOne({
       _id: req.Trainer._id
@@ -1432,4 +1432,9 @@ module.exports.getProfile = async (req, res, next) => {
 module.exports = {
   registration,
   login,
+  logout,
+  sendOtp,
+  verifyOtp,
+  changePassword,
+  getProfile
 };
