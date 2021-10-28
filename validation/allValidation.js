@@ -14,6 +14,7 @@ module.exports.identify = Joi.object({
 });
 
 module.exports.registration = Joi.object({
+        userType:  Joi.string().optional(),
         email: Joi.string().email().optional(),
         phoneNo: Joi.string()
             .regex(/^[0-9]{5,}$/)
@@ -31,6 +32,7 @@ module.exports.registration = Joi.object({
     .with("password", "confirmPassword");
 
 module.exports.login = Joi.object({
+        userType:  Joi.string().optional(),
         email: Joi.string().email().optional(),
         phoneNo: Joi.string()
             .regex(/^[0-9]{5,}$/)
@@ -59,11 +61,13 @@ module.exports.updateProfile = Joi.object({
 }).or("email","image", "country", "state", "city", "address", "latitude", "longitude",  "deviceToken", "deviceType");
 
 module.exports.changePassword = Joi.object({
+    userType:  Joi.string().required(),
     oldPassword: Joi.string().required(),
     newPassword: Joi.string().required(),
 });
 
 module.exports.sendOTP = Joi.object({
+        userType:  Joi.string().optional(),
         email: Joi.string().email().optional(),
         phoneNo: Joi.string()
             .regex(/^[0-9]{5,}$/)
@@ -76,6 +80,7 @@ module.exports.sendOTP = Joi.object({
     .with("phoneNo", "dialCode");
 
 module.exports.verifyOTP = Joi.object({
+        userType:  Joi.string().optional(),
         email: Joi.string().email().optional(),
         phoneNo: Joi.string()
             .regex(/^[0-9]{5,}$/)
