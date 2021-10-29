@@ -44,3 +44,4 @@ const decryptToken = async (token) => {
 };
 
 module.exports = { createNewToken, decryptToken, resetToken };
+
