@@ -3,7 +3,7 @@ const responseHandler = require("../helpers/response");
 const Model = require("../models");
 const bcrypt = require("bcryptjs");
 const mongoose = require("mongoose");
-const Validation = require("../validation");
+const Validation = require("../validations");
 
 const _sendEmailVerification = async (doc, email) => {
   try {
@@ -471,9 +471,9 @@ const _sendPhoneVerification = async (doc, dialCode, phoneNo) => {
 
 const registration = async (req, res, next) => {
   try {
-    await Validation.auth.registration.validateAsync(req.body);
     let userToken = "";
     if (req.body.userType == "user") {
+      await Validation.UserVal.registration.validateAsync(req.body);
       if (req.body.email) {
         req.body.email = req.body.email.toLowerCase();
         const checkEmail = await Model.Users.findOne({
@@ -532,6 +532,7 @@ const registration = async (req, res, next) => {
       await doc.save();
       userToken = jwtHelper.createNewToken(doc);
     } else if (req.body.userType == "trainer") {
+      await Validation.TrainerVal.registration.validateAsync(req.body);
       if (req.body.email) {
         req.body.email = req.body.email.toLowerCase();
         const checkEmail = await Model.Trainers.findOne({
@@ -590,6 +591,7 @@ const registration = async (req, res, next) => {
       await doc.save();
       userToken = jwtHelper.createNewToken(doc);
     } else if (req.body.userType == "astrologer") {
+      await Validation.AstrologerVal.registration.validateAsync(req.body);
       if (req.body.email) {
         req.body.email = req.body.email.toLowerCase();
         const checkEmail = await Model.Astrologers.findOne({
@@ -645,7 +647,7 @@ const registration = async (req, res, next) => {
       await doc.save();
       userToken = jwtHelper.createNewToken(doc);
 
-    } else {
+    } else if(req.body.userType != null) {
       return responseHandler.failure(
         res, {
           message: "Incorrect userType"
@@ -667,10 +669,10 @@ const registration = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    await Validation.auth.login.validateAsync(req.body);
     let userToken = "";
     const criteria = [];
     if (req.body.userType == "user") {
+      await Validation.UserVal.registration.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email.toLowerCase()
@@ -725,6 +727,7 @@ const login = async (req, res, next) => {
       await doc.save();
       userToken = jwtHelper.createNewToken(newUser);
     } else if(req.body.userType == "admin"){
+      await Validation.admin.registration.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email
@@ -770,6 +773,7 @@ const login = async (req, res, next) => {
       doc.deviceType = req.body.deviceType;
       await doc.save();
     }else if (req.body.userType == "astrologer") {
+      await Validation.AstrologerVal.registration.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email.toLowerCase()
@@ -824,6 +828,7 @@ const login = async (req, res, next) => {
       await doc.save();
       userToken = jwtHelper.createNewToken(newUser);
     } else if (req.body.userType == "trainer") {
+      await Validation.TrainerVal.registration.validateAsync(req.body);
       console.log(req.body, "req.body")
       if (req.body.email) {
         criteria.push({
@@ -945,9 +950,9 @@ const logout = async (req, res, next) => {
 
 const sendOtp = async (req, res, next) => {
   try {
-    await Validation.auth.sendOtp.validateAsync(req.body);
     let doc = null;
 if(req.body.userType == "user"){
+  await Validation.UserVal.sendOtp.validateAsync(req.body);
   if (req.body.email) {
     doc = await Model.Users.findOne({
       email: req.body.email.toLowerCase(),
@@ -981,6 +986,7 @@ if(req.body.userType == "user"){
   // if (req.body.dialCode && req.body.phoneNo)
     // await _sendPhoneVerification(doc, req.body.dialCode, req.body.phoneNo);
 }else if(req.body.userType == "astrologer"){
+  await Validation.AstrologerVal.sendOtp.validateAsync(req.body);
   if (req.body.email) {
     doc = await Model.Astrologers.findOne({
       email: req.body.email.toLowerCase(),
@@ -1014,6 +1020,7 @@ if(req.body.userType == "user"){
   // if (req.body.dialCode && req.body.phoneNo)
     // await _sendPhoneVerification(doc, req.body.dialCode, req.body.phoneNo);
 }else if(req.body.userType == "trainer"){
+  await Validation.TrainerVal.sendOtp.validateAsync(req.body);
   if (req.body.email) {
     doc = await Model.Trainers.findOne({
       email: req.body.email.toLowerCase(),
@@ -1068,9 +1075,9 @@ return responseHandler.data(
 
 const verifyOtp = async (req, res, next) => {
   try {
-    await Validation.auth.verifyOtp.validateAsync(req.body);
     let doc = null;
     if (req.body.userType == "user"){
+      await Validation.UserVal.verifyOtp.validateAsync(req.body);
       if (req.body.email) {
         doc = await Model.Users.findOne({
           email: req.body.email.toLowerCase(),
@@ -1138,6 +1145,7 @@ const verifyOtp = async (req, res, next) => {
       await doc.save();
   
 }else if(req.body.userType == "trainer"){
+  await Validation.TrainerVal.verifyOtp.validateAsync(req.body);
     if (req.body.email) {
       doc = await Model.Trainers.findOne({
         email: req.body.email.toLowerCase(),
@@ -1206,6 +1214,7 @@ const verifyOtp = async (req, res, next) => {
 
 
 }else if(req.body.userType == "astrologer"){
+  await Validation.AstrologerVal.verifyOtp.validateAsync(req.body);
   if (req.body.email) {
     doc = await Model.Astrologers.findOne({
       email: req.body.email.toLowerCase(),
@@ -1295,9 +1304,8 @@ const verifyOtp = async (req, res, next) => {
 
 const changePassword = async (req, res, next) => {
   try {
-    await Validation.auth.changePassword.validateAsync(req.body);
-
   if(req.body.userType == "admin"){
+    await Validation.Admin.changePassword.validateAsync(req.body);
     if (req.body.oldPassword === req.body.newPassword){
       return responseHandler.failure(
         res, {
@@ -1322,6 +1330,7 @@ const changePassword = async (req, res, next) => {
   await doc.setPassword(req.body.newPassword);
   await doc.save();
   }else if(req.body.userType == "trainer"){
+    await Validation.TrainerVal.changePassword.validateAsync(req.body);
     if (req.body.oldPassword === req.body.newPassword){
       return responseHandler.failure(
         res, {
@@ -1346,6 +1355,7 @@ const changePassword = async (req, res, next) => {
   await doc.setPassword(req.body.newPassword);
   await doc.save();
   }else if(req.body.userType == "astrologer"){
+    await Validation.AstrologerVal.changePassword.validateAsync(req.body);
     if (req.body.oldPassword === req.body.newPassword){
       return responseHandler.failure(
         res, {
@@ -1370,6 +1380,7 @@ const changePassword = async (req, res, next) => {
   await doc.setPassword(req.body.newPassword);
   await doc.save();
   }else if(req.body.userType == "user"){
+    await Validation.UserVal.changePassword.validateAsync(req.body);
     if (req.body.oldPassword === req.body.newPassword){
       return responseHandler.failure(
         res, {
@@ -1412,6 +1423,20 @@ const changePassword = async (req, res, next) => {
   }
 };
 
+const uploadFile = async (req, res, next) => {
+  try {
+    if (!req.file) throw new Error("UPLOADING_ERROR");
+
+    const filePath = "/" + req.file.path.replace(/\/?public\/?/g, "")
+
+    return res.success("FILE_UPLOADED", {
+      filePath
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getProfile = async (req, res, next) => {
   try {
     let doc = await Model.Trainers.findOne({
@@ -1443,5 +1468,6 @@ module.exports = {
   sendOtp,
   verifyOtp,
   changePassword,
-  getProfile
+  getProfile,
+  uploadFile
 };

@@ -8,6 +8,8 @@ connectDB();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+
+app.use("/", express.static(__dirname + "/public"));
 app.use(cors());
 routes(app);
 app.use(errorHanlder);
