@@ -1,28 +1,14 @@
 const AuthController = require("../controllers/auth");
-const multer = require("multer");
-const storage = multer.diskStorage({
-    destination: "public/uploads",
-    filename: function (req, file, cb) {
-        const extension = "".concat(file.originalname).split(".").pop();
-        const filename = Date.now().toString(36);
-        cb(null, `${filename}.${extension}`);
-    },
-});
-const upload = multer({ storage });
-const Model = require("../models");
 const router = require("express").Router();
+const authService = require("../helpers/jwt")
 
 router.post("/signup", AuthController.registration);
 router.post("/login", AuthController.login);
-router.post("/logout", AuthController.logout);
+router.post("/logout", authService.verify('user'), AuthController.logout);
 router.post("/sendOtp", AuthController.sendOtp);
-router.post("/verifyOtp", AuthController.verifyOtp);
+router.post("/verifyOTP", authService.verify('user'), AuthController.verifyOTP);
 router.post("/forgotPassword", AuthController.sendOtp);
-router.post("/uploadFile", upload.single("file"), AuthController.uploadFile);
-
-
-
-
+router.post("/changePassword",authService.verify('user'), AuthController.changePassword)
 
 module.exports = router;
   

@@ -31,11 +31,6 @@ const UserSchema = new Schema(
       default: "",
       index: true,
     },
-    confirmPassword: {
-      type: String,
-      default: "",
-      index: true,
-    },
     image: {
       type: String,
       default: "",
@@ -160,12 +155,29 @@ UserSchema.methods.authenticate = function (password, callback) {
     .catch((err) => callback(err));
 };
 
-UserSchema.pre("save", function (next) {
-  bcrypt.hash(this.password, 10, (err, hash) => {
-    if (err) next(err);
-    this.password = hash;
-    next();
+UserSchema.methods.setPassword = function (password, callback) {
+  const promise = new Promise((resolve, reject) => {
+    if (!password) reject(new Error("Missing Password"));
+
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) reject(err);
+      this.password = hash;
+      resolve(this);
+    });
   });
-});
+
+  if (typeof callback !== "function") return promise;
+  promise
+    .then((result) => callback(null, result))
+    .catch((err) => callback(err));
+};
+
+// UserSchema.pre("save", function (next) {
+//   bcrypt.hash(this.password, 10, (err, hash) => {
+//     if (err) next(err);
+//     this.password = hash;
+//     next();
+//   });
+// });
 
 module.exports = mongoose.model("Users", UserSchema);

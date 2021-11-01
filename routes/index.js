@@ -1,7 +1,8 @@
-const AuthRoutes = require("./auth");
+const router = require("express").Router();
+const authRoutes = require("./auth");
+const uploadRoutes = require("./upload");
 
-const initializeRoutes = (app) => {
-  app.use("/api/auth", AuthRoutes);
-};
+router.use("/auth", authRoutes);
+router.use("/upload", uploadRoutes);
 
-module.exports = initializeRoutes;
+module.exports = router;

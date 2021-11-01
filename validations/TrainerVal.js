@@ -89,7 +89,7 @@ module.exports.resetPassword = Joi.object({
     ReneterNewPassword: Joi.string().required().valid(Joi.ref("newPassword")),
 }).xor("secretCode", "accessToken");
 
-module.exports.sendOTP = Joi.object({
+module.exports.sendOtp = Joi.object({
         userType: Joi.string().required(),
         email: Joi.string().email().optional(),
         phoneNo: Joi.string()

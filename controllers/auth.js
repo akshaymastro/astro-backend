@@ -55,7 +55,7 @@ const _sendEmailVerification = async (doc, email) => {
         tobeUpdated.email = email;
         tobeUpdated.isEmailVerified = false;
       }
-      const token = await functions.generateNumber(4)
+      const token ='000000';/*  await functions.generateNumber(4) */
       tobeUpdated.tempData = Object.assign({}, doc.tempData, {
         email: email,
         emailSecret: token,
@@ -97,7 +97,7 @@ const _sendEmailVerification = async (doc, email) => {
       // No change, in case - hasEmail, sameEmail, isVerified
       if (doc.email && doc.email === email && doc.isEmailVerified === true) {
         tobeUpdated.email = email;
-        const token = await functions.generateNumber(4)
+        const token = '000000';/* await functions.generateNumber(4) */
         tobeUpdated.tempData = Object.assign({}, doc.tempData, {
           email: email,
           emailSecret: token,
@@ -111,18 +111,18 @@ const _sendEmailVerification = async (doc, email) => {
         });
   
         if (token) {
-          process.emit("sendEmail", {
-            to: email,
-            title: "Verify your account",
-            message: `Hello ,Please use this OTP to verify your account - <b>${token}</b>`,
-          });
+          // process.emit("sendEmail", {
+          //   to: email,
+          //   title: "Verify your account",
+          //   message: `Hello ,Please use this OTP to verify your account - <b>${token}</b>`,
+          // });
         }
         return;
       } else if (!doc.email) {
         tobeUpdated.email = email;
         tobeUpdated.isEmailVerified = false;
       }
-      const token = await functions.generateNumber(4)
+      const token = '000000';/* await functions.generateNumber(4) */
       tobeUpdated.tempData = Object.assign({}, doc.tempData, {
         email: email,
         emailSecret: token,
@@ -135,11 +135,11 @@ const _sendEmailVerification = async (doc, email) => {
       });
   
       if (token) {
-        process.emit("sendEmail", {
-          to: email,
-          title: "Verify your account",
-          message: `Please, use this code address to verify your account - <b>${token}</b>`,
-        });
+        // process.emit("sendEmail", {
+        //   to: email,
+        //   title: "Verify your account",
+        //   message: `Please, use this code address to verify your account - <b>${token}</b>`,
+        // });
       }
     }else if(req.body.userType == "astrologer"){
       if (!doc){
@@ -164,7 +164,7 @@ const _sendEmailVerification = async (doc, email) => {
       // No change, in case - hasEmail, sameEmail, isVerified
       if (doc.email && doc.email === email && doc.isEmailVerified === true) {
         tobeUpdated.email = email;
-        const token = await functions.generateNumber(4)
+        const token ='000000';/*  await functions.generateNumber(4) */
         tobeUpdated.tempData = Object.assign({}, doc.tempData, {
           email: email,
           emailSecret: token,
@@ -189,7 +189,7 @@ const _sendEmailVerification = async (doc, email) => {
         tobeUpdated.email = email;
         tobeUpdated.isEmailVerified = false;
       }
-      const token = await functions.generateNumber(4)
+      const token = '000000';/* await functions.generateNumber(4) */
       tobeUpdated.tempData = Object.assign({}, doc.tempData, {
         email: email,
         emailSecret: token,
@@ -256,7 +256,7 @@ const _sendEmailVerification = async (doc, email) => {
         tobeUpdated.email = email;
         tobeUpdated.isEmailVerified = false;
       }
-      const token = await functions.generateNumber(4)
+      const token = '000000';/* await functions.generateNumber(4) */
       tobeUpdated.tempData = Object.assign({}, doc.tempData, {
         email: email,
         emailSecret: token,
@@ -529,8 +529,9 @@ const registration = async (req, res, next) => {
       }
       const doc = await Model.Users.create(req.body);
       await doc.setPassword(req.body.password);
+      doc.accessToken = await jwtHelper.createNewToken(doc);
       await doc.save();
-      userToken = jwtHelper.createNewToken(doc);
+      userToken = doc.accessToken;
     } else if (req.body.userType == "trainer") {
       await Validation.TrainerVal.registration.validateAsync(req.body);
       if (req.body.email) {
@@ -589,7 +590,8 @@ const registration = async (req, res, next) => {
       const doc = await Model.Trainers.create(req.body);
       await doc.setPassword(req.body.password);
       await doc.save();
-      userToken = jwtHelper.createNewToken(doc);
+      userToken =await jwtHelper.createNewToken(doc);
+      await Model.Trainers.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
     } else if (req.body.userType == "astrologer") {
       await Validation.AstrologerVal.registration.validateAsync(req.body);
       if (req.body.email) {
@@ -645,7 +647,8 @@ const registration = async (req, res, next) => {
       const doc = await Model.Astrologers.create(req.body);
       await doc.setPassword(req.body.password);
       await doc.save();
-      userToken = jwtHelper.createNewToken(doc);
+      userToken =await jwtHelper.createNewToken(doc);
+      await Model.Astrologers.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
 
     } else if(req.body.userType != null) {
       return responseHandler.failure(
@@ -672,7 +675,7 @@ const login = async (req, res, next) => {
     let userToken = "";
     const criteria = [];
     if (req.body.userType == "user") {
-      await Validation.UserVal.registration.validateAsync(req.body);
+      await Validation.UserVal.login.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email.toLowerCase()
@@ -695,8 +698,7 @@ const login = async (req, res, next) => {
           400
         );
       };
-      await doc.authenticate(req.body.password);
-
+     
       if (req.body.email && !doc.isEmailVerified) {
         return responseHandler.failure(
           res, {
@@ -724,10 +726,16 @@ const login = async (req, res, next) => {
       doc.loginCount += 1;
       doc.deviceToken = req.body.deviceToken;
       doc.deviceType = req.body.deviceType;
+      await doc.authenticate(req.body.password);
+
+      // await doc.save();
+      // userToken = await jwtHelper.createNewToken(newUser);
+      // await Model.Users.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
+      doc.accessToken = await jwtHelper.createNewToken(doc);
       await doc.save();
-      userToken = jwtHelper.createNewToken(newUser);
+      userToken = doc.accessToken;
     } else if(req.body.userType == "admin"){
-      await Validation.admin.registration.validateAsync(req.body);
+      await Validation.Admin.login.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email
@@ -748,7 +756,7 @@ const login = async (req, res, next) => {
           400
         );
       } 
-      await doc.authenticate(req.body.password);
+      // await doc.authenticate(req.body.password);
   
       if (req.body.email && !doc.isEmailVerified) {
         return responseHandler.failure(
@@ -771,9 +779,15 @@ const login = async (req, res, next) => {
       doc.userToken = jwtHelper.createNewToken(doc);
       doc.deviceToken = req.body.deviceToken;
       doc.deviceType = req.body.deviceType;
+      await doc.authenticate(req.body.password);
+      doc.accessToken = await jwtHelper.createNewToken(doc);
       await doc.save();
+      userToken = doc.accessToken;
+      // await doc.save();
+      // userToken = await jwtHelper.createNewToken(newUser);
+      // await Model.Admins.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
     }else if (req.body.userType == "astrologer") {
-      await Validation.AstrologerVal.registration.validateAsync(req.body);
+      await Validation.AstrologerVal.login.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email.toLowerCase()
@@ -796,7 +810,7 @@ const login = async (req, res, next) => {
           400
         );
       };
-      await doc.authenticate(req.body.password);
+      // await doc.authenticate(req.body.password);
 
       if (req.body.email && !doc.isEmailVerified) {
         return responseHandler.failure(
@@ -825,11 +839,15 @@ const login = async (req, res, next) => {
       doc.loginCount += 1;
       doc.deviceToken = req.body.deviceToken;
       doc.deviceType = req.body.deviceType;
+      await doc.authenticate(req.body.password);
+      doc.accessToken = await jwtHelper.createNewToken(doc);
       await doc.save();
-      userToken = jwtHelper.createNewToken(newUser);
+      userToken = doc.accessToken;
+      // userToken = jwtHelper.createNewToken(newUser);
+      // userToken = await jwtHelper.createNewToken(newUser);
+      // await Model.Astrologers.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
     } else if (req.body.userType == "trainer") {
-      await Validation.TrainerVal.registration.validateAsync(req.body);
-      console.log(req.body, "req.body")
+      await Validation.TrainerVal.login.validateAsync(req.body);
       if (req.body.email) {
         criteria.push({
           email: req.body.email.toLowerCase()
@@ -852,7 +870,6 @@ const login = async (req, res, next) => {
           400
         );
       };
-      await doc.authenticate(req.body.password);
 
       if (req.body.email && !doc.isEmailVerified) {
         return responseHandler.failure(
@@ -881,8 +898,13 @@ const login = async (req, res, next) => {
       doc.loginCount += 1;
       doc.deviceToken = req.body.deviceToken;
       doc.deviceType = req.body.deviceType;
+      await doc.authenticate(req.body.password);
+      doc.accessToken = await jwtHelper.createNewToken(doc);
       await doc.save();
-      userToken = jwtHelper.createNewToken(newUser);
+      userToken = doc.accessToken;
+      // userToken = await jwtHelper.createNewToken(newUser);
+      // userToken = await jwtHelper.createNewToken(newUser);
+      // await Model.Trainers.findOneAndUpdate({_id:doc._id},{$set:{accessToken:userToken}})
     } else if (req.body.userType != null) {
       return responseHandler.failure(
         res, {
@@ -982,7 +1004,7 @@ if(req.body.userType == "user"){
     );
   }
 
-  // if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
+  if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
   // if (req.body.dialCode && req.body.phoneNo)
     // await _sendPhoneVerification(doc, req.body.dialCode, req.body.phoneNo);
 }else if(req.body.userType == "astrologer"){
@@ -1016,7 +1038,7 @@ if(req.body.userType == "user"){
     );
   }
 
-  // if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
+  if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
   // if (req.body.dialCode && req.body.phoneNo)
     // await _sendPhoneVerification(doc, req.body.dialCode, req.body.phoneNo);
 }else if(req.body.userType == "trainer"){
@@ -1050,13 +1072,13 @@ if(req.body.userType == "user"){
     );
   }
 
-  // if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
+  if (req.body.email) await _sendEmailVerification(doc, req.body.email.toLowerCase());
   // if (req.body.dialCode && req.body.phoneNo)
     // await _sendPhoneVerification(doc, req.body.dialCode, req.body.phoneNo);
 }else if (req.body.userType != null) {
   return responseHandler.failure(
     res, {
-      message: "Incorrect req.body.userType"
+      message: "Incorrect userType"
     },
     400
   );
@@ -1073,11 +1095,11 @@ return responseHandler.data(
   }
 };
 
-const verifyOtp = async (req, res, next) => {
+const verifyOTP = async (req, res, next) => {
   try {
     let doc = null;
     if (req.body.userType == "user"){
-      await Validation.UserVal.verifyOtp.validateAsync(req.body);
+      await Validation.UserVal.verifyOTP.validateAsync(req.body);
       if (req.body.email) {
         doc = await Model.Users.findOne({
           email: req.body.email.toLowerCase(),
@@ -1145,7 +1167,7 @@ const verifyOtp = async (req, res, next) => {
       await doc.save();
   
 }else if(req.body.userType == "trainer"){
-  await Validation.TrainerVal.verifyOtp.validateAsync(req.body);
+  await Validation.TrainerVal.verifyOTP.validateAsync(req.body);
     if (req.body.email) {
       doc = await Model.Trainers.findOne({
         email: req.body.email.toLowerCase(),
@@ -1214,7 +1236,7 @@ const verifyOtp = async (req, res, next) => {
 
 
 }else if(req.body.userType == "astrologer"){
-  await Validation.AstrologerVal.verifyOtp.validateAsync(req.body);
+  await Validation.AstrologerVal.verifyOTP.validateAsync(req.body);
   if (req.body.email) {
     doc = await Model.Astrologers.findOne({
       email: req.body.email.toLowerCase(),
@@ -1285,7 +1307,7 @@ const verifyOtp = async (req, res, next) => {
 }else if (req.body.userType != null) {
   return responseHandler.failure(
     res, {
-      message: "Incorrect req.body.userType"
+      message: "Incorrect userType"
     },
     400
   );
@@ -1381,7 +1403,7 @@ const changePassword = async (req, res, next) => {
   await doc.save();
   }else if(req.body.userType == "user"){
     await Validation.UserVal.changePassword.validateAsync(req.body);
-    if (req.body.oldPassword === req.body.newPassword){
+    if (req.body.oldPassword == req.body.newPassword){
       return responseHandler.failure(
         res, {
           message: "PASSWORDS_SHOULD_BE_DIFFERENT"
@@ -1425,13 +1447,22 @@ const changePassword = async (req, res, next) => {
 
 const uploadFile = async (req, res, next) => {
   try {
-    if (!req.file) throw new Error("UPLOADING_ERROR");
-
+    if (!req.file) {
+      return responseHandler.failure(
+        res, {
+          message: "UPLOADING_ERROR"
+        },
+        400
+      );
+    }
     const filePath = "/" + req.file.path.replace(/\/?public\/?/g, "")
-
-    return res.success("FILE_UPLOADED", {
-      filePath
-    });
+    return responseHandler.data(
+      res, {
+        message: "FILE_UPLOADED",
+        filePath
+      },
+      200
+    );
   } catch (error) {
     next(error);
   }
@@ -1466,7 +1497,7 @@ module.exports = {
   login,
   logout,
   sendOtp,
-  verifyOtp,
+  verifyOTP,
   changePassword,
   getProfile,
   uploadFile
